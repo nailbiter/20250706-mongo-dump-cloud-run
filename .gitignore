@@ -258,3 +258,7 @@ flycheck_*.el
 
 # undo-tree
 *.~undo-tree~
+api-project-*.json
+mongo_backup_*.gz
+.DS_Store
+mongo_backup_*
