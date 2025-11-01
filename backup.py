@@ -1,6 +1,10 @@
-import click
 import datetime
+import logging
 import subprocess
+from os import path
+
+import click
+from dotenv import load_dotenv
 from google.cloud import storage
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -73,4 +77,9 @@ def backup_mongo_to_gcs(mongo_uri, gcs_bucket_name, gcs_credentials, database_al
 
 
 if __name__ == "__main__":
+    fn = ".env"
+    if path.isfile(fn):
+        logging.warning(f"loading `{fn}`")
+        load_dotenv(dotenv_path=fn)
+
     backup_mongo_to_gcs()
