@@ -44,7 +44,7 @@ def backup_mongo_to_gcs(mongo_uri, gcs_bucket_name, gcs_credentials, database_al
 
         # Using mongodump to create a gzipped archive of the entire database
         mongodump_command = [
-            "usr/local/bin/mongodump",
+            "/usr/local/bin/mongodump",
             f"--uri={mongo_uri}",
             f"--archive={backup_archive_name}",
             "--gzip",
