@@ -2,6 +2,7 @@ import datetime
 import logging
 import subprocess
 from os import path
+import typing
 
 import click
 from dotenv import load_dotenv
@@ -10,7 +11,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
 
-@click.command()
+@click.command(name="backup")
 @click.option("-M", "--mongo-uri", required=True, help="MongoDB connection string.")
 @click.option(
     "-B", "--gcs-bucket-name", required=True, help="Google Cloud Storage bucket name."
@@ -18,12 +19,21 @@ from pymongo.errors import ConnectionFailure
 @click.option(
     "-C",
     "--gcs-credentials",
-    required=True,
+    # required=True,
     type=click.Path(exists=True),
     help="Path to the GCP service account JSON file.",
 )
 @click.option("--database-alias", "-A", type=str, required=True)
-def backup_mongo_to_gcs(mongo_uri, gcs_bucket_name, gcs_credentials, database_alias):
+def backup_mongo_to_gcs(**kwargs):
+    return _real_backup_mongo_to_gcs(**kwargs)
+
+
+def _real_backup_mongo_to_gcs(
+    mongo_uri,
+    gcs_bucket_name,
+    database_alias: str,
+    gcs_credentials: typing.Optional = None,
+):
     """
     Backs up a MongoDB database to a Google Cloud Storage bucket.
     """
@@ -63,7 +73,12 @@ def backup_mongo_to_gcs(mongo_uri, gcs_bucket_name, gcs_credentials, database_al
 
         # 3. Upload to Google Cloud Storage
         click.echo(f"Uploading backup to GCS bucket: {gcs_bucket_name}...")
-        storage_client = storage.Client.from_service_account_json(gcs_credentials)
+
+        if gcs_credentials is not None:
+            storage_client = storage.Client.from_service_account_json(gcs_credentials)
+        else:
+            storage_client = storage.Client()
+
         bucket = storage_client.bucket(gcs_bucket_name)
         blob = bucket.blob(backup_archive_name)
 
