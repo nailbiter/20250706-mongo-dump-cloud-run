@@ -9,13 +9,9 @@
 ## deploy of Cloud Function
 
 ```sh
-gcloud functions deploy mongo-backup \
-  --gen2 \
-  --runtime=python311 \
+gcloud builds submit --tag gcr.io/$GCLOUD_PROJECT_ID/mongo-backup . && sleep 30 && gcloud run deploy mongo-backup \
+  --image gcr.io/$GCLOUD_PROJECT_ID/mongo-backup \
   --region=us-east1 \
-  --source=. \
-  --entry-point=entrypoint \
-  --trigger-topic=mongo-dump-cloud-run \
   --set-secrets="MONGO_URL=mongo-url-gaq:latest,PYASSISTANTBOT_MONGO_URL=mongo-url-s8:latest" \
   --timeout=300
 ```

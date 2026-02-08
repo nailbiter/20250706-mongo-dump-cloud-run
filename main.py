@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import sys
+import base64
 
 import functions_framework
 from backup import _real_backup_mongo_to_gcs as backup_mongo_to_gcs
@@ -42,15 +43,27 @@ def entrypoint(cloud_event):
         #     minute=0, second=0, microsecond=0
         # )
 
-        message = cloud_event.get("data", {}).get("message")
-        logger.debug(message)
+        # logger.debug(cloud_event)
+        # logger.debug(type(cloud_event))
+        # logger.debug(cloud_event.keys())
+        # message = cloud_event.get("data", {})
+        # logger.debug(message)
+        # message = message.get("message", {})
+        # logger.debug(message)
+        # message = message.get("data")
+        # logger.debug(message)
+
+        message = cloud_event.data["message"]["data"]
 
         if message is None:
             return
 
+        message = base64.b64decode(message).decode("utf-8")
+        logger.debug(message)
+
         data = json.loads(message)
         for r in data:
-            loger.debug(r)
+            logger.debug(r)
             backup_mongo_to_gcs(**r)
 
     except Exception as e:
